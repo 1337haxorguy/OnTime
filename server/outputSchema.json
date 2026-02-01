@@ -1,0 +1,14 @@
+{
+  "plan": [
+    {
+      "goal_id": "string",
+      "date": "YYYY-MM-DD",
+      "start_time": "HH:MM",
+      "end_time": "HH:MM",
+      "title": "string",
+      "description": "string",
+      "difficulty": "easy | moderate | challenging",
+      "estimated_duration_minutes": 0
+    }
+  ]
+}
