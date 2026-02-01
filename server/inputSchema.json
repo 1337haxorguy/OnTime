@@ -29,8 +29,7 @@
     },                                                                            
     "generation_request": {                                                       
       "type": "full_plan | single_day",                                           
-      "target_date": "YYYY-MM-DD | null",                                         
-      "goal_id": "string | null"                                                  
+      "target_date": "YYYY-MM-DD | null"                                         
     },                                                                            
     "existing_plan": [                                                            
       {                                                                           
