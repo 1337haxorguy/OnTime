@@ -121,4 +121,47 @@ router.post("/", async (req, res) => {
   }
 });
 
+const REGENERATE_SYSTEM_PROMPT = `You are a productivity planning assistant. The user wants to regenerate a single task from their existing plan. They will provide the original task and feedback on what they want changed.
+
+Rules:
+- Return exactly ONE replacement task.
+- The new task MUST keep the same date and fit within the provided time slot for that date.
+- Incorporate the user's feedback into the new task.
+- Return ONLY valid JSON matching the output schema, no extra text.`;
+
+router.post("/regenerate-task", async (req, res) => {
+  const { task, feedback, user_profile } = req.body;
+
+  if (!task || !feedback) {
+    return res.status(400).json({ error: "task and feedback are required." });
+  }
+
+  const availableDates = computeAvailableDates(user_profile.availability, user_profile.goals);
+  const dateSlots = availableDates.find((d) => d.date === task.date);
+
+  const userMessage = JSON.stringify({
+    original_task: task,
+    feedback,
+    available_slots: dateSlots ? dateSlots.slots : [],
+    goal: user_profile.goals.find((g) => g.id === task.goal_id) || null,
+  });
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: REGENERATE_SYSTEM_PROMPT },
+        { role: "user", content: userMessage },
+      ],
+      response_format: OUTPUT_SCHEMA,
+    });
+
+    const result = JSON.parse(completion.choices[0].message.content);
+    res.json({ task: result.plan[0] });
+  } catch (err) {
+    console.error("OpenAI API error:", err.message);
+    res.status(500).json({ error: "Failed to regenerate task." });
+  }
+});
+
 module.exports = router;

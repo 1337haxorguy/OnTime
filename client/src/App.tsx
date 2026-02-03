@@ -53,6 +53,9 @@ function App() {
   const [plan, setPlan] = useState<Task[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [regenIndex, setRegenIndex] = useState<number | null>(null);
+  const [regenFeedback, setRegenFeedback] = useState("");
+  const [regenLoading, setRegenLoading] = useState(false);
 
   const updateGoal = (index: number, field: string, value: string) => {
     setGoals((prev) => {
@@ -118,6 +121,38 @@ function App() {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const regenerateTask = async (index: number) => {
+    if (!plan || !regenFeedback.trim()) return;
+    setRegenLoading(true);
+    try {
+      const res = await fetch("http://localhost:3000/api/generate/regenerate-task", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task: plan[index],
+          feedback: regenFeedback,
+          user_profile: {
+            goals,
+            availability: {
+              timezone,
+              weekly_schedule: schedule,
+              blocked_dates: blockedDates.split(",").map((d) => d.trim()).filter(Boolean),
+            },
+          },
+        }),
+      });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
+      setPlan((prev) => prev!.map((t, i) => (i === index ? data.task : t)));
+      setRegenIndex(null);
+      setRegenFeedback("");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to regenerate task");
+    } finally {
+      setRegenLoading(false);
     }
   };
 
@@ -213,6 +248,39 @@ function App() {
                   {task.start_time} – {task.end_time} ({task.estimated_duration_minutes} min)
                 </p>
                 <p className="text-sm leading-relaxed">{task.description}</p>
+
+                {regenIndex === i ? (
+                  <div className="mt-3 flex flex-col gap-2">
+                    <textarea
+                      className="p-2 border border-gray-600 rounded bg-gray-900 text-white text-sm w-full min-h-[60px] resize-y"
+                      placeholder="What would you like changed about this task?"
+                      value={regenFeedback}
+                      onChange={(e) => setRegenFeedback(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        className="px-3 py-1.5 bg-indigo-600 rounded text-sm text-white hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                        onClick={() => regenerateTask(i)}
+                        disabled={regenLoading || !regenFeedback.trim()}
+                      >
+                        {regenLoading ? "Regenerating..." : "Submit"}
+                      </button>
+                      <button
+                        className="px-3 py-1.5 text-sm text-gray-400 hover:text-white"
+                        onClick={() => { setRegenIndex(null); setRegenFeedback(""); }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    className="mt-2 text-sm text-indigo-400 hover:text-indigo-300"
+                    onClick={() => { setRegenIndex(i); setRegenFeedback(""); }}
+                  >
+                    Regenerate task
+                  </button>
+                )}
               </div>
             ))}
           </div>
