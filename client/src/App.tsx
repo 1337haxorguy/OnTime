@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const API_BASE = "http://localhost:3000";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 
@@ -56,6 +58,14 @@ function App() {
   const [regenIndex, setRegenIndex] = useState<number | null>(null);
   const [regenFeedback, setRegenFeedback] = useState("");
   const [regenLoading, setRegenLoading] = useState(false);
+  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/profile`, { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data) setUser(data); })
+      .catch(() => {});
+  }, []);
 
   const updateGoal = (index: number, field: string, value: string) => {
     setGoals((prev) => {
@@ -158,7 +168,30 @@ function App() {
 
   return (
     <div className="max-w-3xl mx-auto text-white">
-      <h1 className="text-3xl font-bold mb-6">OnTrack</h1>
+      {/* NAVBAR */}
+      <nav className="flex items-center justify-between py-4 mb-6 border-b border-gray-700">
+        <h1 className="text-3xl font-bold">OnTrack</h1>
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              <span className="text-sm text-gray-400">{user.name || user.email}</span>
+              <a
+                href={`${API_BASE}/logout`}
+                className="px-4 py-1.5 text-sm border border-gray-600 rounded bg-gray-800 text-white hover:bg-gray-700"
+              >
+                Log out
+              </a>
+            </>
+          ) : (
+            <a
+              href={`${API_BASE}/login`}
+              className="px-4 py-1.5 text-sm bg-indigo-600 rounded text-white hover:bg-indigo-700"
+            >
+              Log in
+            </a>
+          )}
+        </div>
+      </nav>
 
       {/* GOALS */}
       <section className="mb-8">
