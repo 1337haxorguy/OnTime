@@ -1,0 +1,63 @@
+{
+    "user_provided_info":
+        {
+            "hobby_title:": "<STRING: title of the hobby that this routine is built for>",
+            "goals": [
+                "<list of STRINGs: the user's primary goals associated with this hobby>"
+            ],
+            "restrictions": [
+                ""
+            ],
+            "requests": [
+                ""
+            ],
+            "additional_context": [
+                ""
+            ],
+            "target_end_date": "<STRING: mm-dd-yyyy format, target end date to achieve goals by>",
+            "weekly_frequency": "<INT: how many days per week the user wants to attribute to this hobby>",
+            "min_intraday_frequency": "<INT: for any given day that the user dedicates some amount of time to this hobby, this number represents the MINIMUM number of time blocks they should have within the day>",
+            "max_intraday_frequency": "<INT: for any given day that the user dedicates some amount of time to this hobby, this number represents the MAXIMUM number of time blocks they should have within the day>",
+            "prefers_time_blocks": "<BOOL: true indicates that the user wants specific time blocks generated for each day's tasks, false indicates that they don't want time blocks generated for each day's tasks>",
+            "min_hours_per_week": "<INT: represents the MINIMUM total hours per week that the user wants to dedicate to this hobby>",
+            "max_hours_per_week": "<INT: represents the MAXIMUM total hours per week that the user wants to dedicate to this hobby>"
+        },
+    "weekly_schedules":
+        {
+            "week_1":
+                {
+                    "start_date": "<STRING: mm-dd-yyyy format, the date for Monday of week 1>",
+                    "end_date": "<STRING: mm-dd-yyyy format, the date for Sunday of week 1>",
+                    "weekly_tasks": [
+                        "<this list is always empty in this specific JSON format / context>"
+                    ],
+                    "daily_tasks": [
+                        {
+                            "day_1":
+                                {
+                                    "date": "<STRING: mm-dd-yyyy format, the date the first day's tasks>",
+                                    "time_blocks": [
+                                        "<list of STRINGs: each string formatted start_time-end_time (e.g. 10:30AM-01:30PM) - can be an empty list if the user doesn't want specific time blocks"
+                                    ],
+                                    "tasks": [
+                                        "<list of STRINGs: each string represents a specific task that the user must complete by the end of the corresponding day>"
+                                    ]
+                                },
+                            "day_2":
+                                {
+                                    ...
+                                },
+                            ...
+                            "day_7":
+                                {
+                                    ...
+                                },
+                        }
+                    ]
+                },
+            "week_2": {
+                ...
+            },
+            ...
+        }
+}
